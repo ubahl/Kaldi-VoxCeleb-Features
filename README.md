@@ -10,6 +10,8 @@ Summarization of the project: https://youtu.be/rsV9lbM1KXI
 
 Results: [MFCCvsSpec.pdf](MFCCvsSpec.pdf)
 
+<img src="https://github.com/ubahl/Kaldi-VoxCeleb-Features/blob/master/images/resultstable.png" width=50% height=50%>
+
 ## Tools Used
 The [Kaldi Speech Recognition Toolkit](https://github.com/kaldi-asr/kaldi) was used for training and evaluating the models. All scripts were adapted from the Kaldi VoxCeleb v2 [run.sh](https://github.com/kaldi-asr/kaldi/blob/master/egs/voxceleb/v2/run.sh) file.
 
