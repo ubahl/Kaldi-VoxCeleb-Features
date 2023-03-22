@@ -36,37 +36,37 @@ if [ $stage -le 1 ]; then
 fi
 
 if [ $stage -le 4 ]; then
-  # This script applies CMVN and removes nonspeech frames.  Note that this is somewhat
-  # wasteful, as it roughly doubles the amount of training data on disk.  After
-  # creating training examples, this can be removed.
-  local/nnet3/xvector/prepare_feats_for_egs.sh --nj 40 --cmd "$train_cmd" \
-    data/train data/train_no_sil exp/train_no_sil
-  utils/fix_data_dir.sh data/train_no_sil
+	# This script applies CMVN and removes nonspeech frames.  Note that this is somewhat
+	# wasteful, as it roughly doubles the amount of training data on disk.  After
+	# creating training examples, this can be removed.
+	local/nnet3/xvector/prepare_feats_for_egs.sh --nj 40 --cmd "$train_cmd" \
+		data/train data/train_no_sil exp/train_no_sil
+	utils/fix_data_dir.sh data/train_no_sil
 fi
 
 if [ $stage -le 5 ]; then
-  # Now, we need to remove features that are too short after removing silence
-  # frames.  We want atleast 5s (500 frames) per utterance.
-  min_len=400
-  mv data/train_no_sil/utt2num_frames data/train_no_sil/utt2num_frames.bak
-  awk -v min_len=${min_len} '$2 > min_len {print $1, $2}' data/train_no_sil/utt2num_frames.bak > data/train_no_sil/utt2num_frames
-  utils/filter_scp.pl data/train_no_sil/utt2num_frames data/train_no_sil/utt2spk > data/train_no_sil/utt2spk.new
-  mv data/train_no_sil/utt2spk.new data/train_no_sil/utt2spk
-  utils/fix_data_dir.sh data/train_no_sil
+	# Now, we need to remove features that are too short after removing silence
+	# frames.  We want atleast 5s (500 frames) per utterance.
+	min_len=400
+	mv data/train_no_sil/utt2num_frames data/train_no_sil/utt2num_frames.bak
+	awk -v min_len=${min_len} '$2 > min_len {print $1, $2}' data/train_no_sil/utt2num_frames.bak > data/train_no_sil/utt2num_frames
+	utils/filter_scp.pl data/train_no_sil/utt2num_frames data/train_no_sil/utt2spk > data/train_no_sil/utt2spk.new
+	mv data/train_no_sil/utt2spk.new data/train_no_sil/utt2spk
+	utils/fix_data_dir.sh data/train_no_sil
 
-  # We also want several utterances per speaker. Now we'll throw out speakers
-  # with fewer than 8 utterances.
-  min_num_utts=8
-  awk '{print $1, NF-1}' data/train_no_sil/spk2utt > data/train_no_sil/spk2num
-  awk -v min_num_utts=${min_num_utts} '$2 >= min_num_utts {print $1, $2}' data/train_no_sil/spk2num | utils/filter_scp.pl - data/train_no_sil/spk2utt > data/train_no_sil/spk2utt.new
-  mv data/train_no_sil/spk2utt.new data/train_no_sil/spk2utt
-  utils/spk2utt_to_utt2spk.pl data/train_no_sil/spk2utt > data/train_no_sil/utt2spk
+	# We also want several utterances per speaker. Now we'll throw out speakers
+	# with fewer than 8 utterances.
+	min_num_utts=8
+	awk '{print $1, NF-1}' data/train_no_sil/spk2utt > data/train_no_sil/spk2num
+	awk -v min_num_utts=${min_num_utts} '$2 >= min_num_utts {print $1, $2}' data/train_no_sil/spk2num | utils/filter_scp.pl - data/train_no_sil/spk2utt > data/train_no_sil/spk2utt.new
+	mv data/train_no_sil/spk2utt.new data/train_no_sil/spk2utt
+	utils/spk2utt_to_utt2spk.pl data/train_no_sil/spk2utt > data/train_no_sil/utt2spk
 
-  utils/filter_scp.pl data/train_no_sil/utt2spk data/trail_no_sil/utt2num_frames > data/train_no_sil/utt2num_frames.new
-  mv data/train_no_sil/utt2num_frames.new data/train_no_sil/utt2num_frames
+	utils/filter_scp.pl data/train_no_sil/utt2spk data/trail_no_sil/utt2num_frames > data/train_no_sil/utt2num_frames.new
+	mv data/train_no_sil/utt2num_frames.new data/train_no_sil/utt2num_frames
 
-  # Now we're ready to create training examples.
-  utils/fix_data_dir.sh data/train_no_sil
+	# Now we're ready to create training examples.
+	utils/fix_data_dir.sh data/train_no_sil
 fi
 
 if [ $stage -le 8 ]; then
